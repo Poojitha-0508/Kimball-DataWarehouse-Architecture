@@ -18,7 +18,7 @@ A complete **end-to-end Kimball Data Warehouse** built on **Microsoft SQL Server
         │
         ▼
 ┌─────────────────┐
-│   Staging Layer  │  ← Raw data loaded via Stored Procedure (SP1)
+│   Staging Layer │  ← Raw data loaded via Stored Procedure (SP1)
 │  (Stg schema)   │  ← NVARCHAR columns — accepts everything safely
 └────────┬────────┘
          │
@@ -39,7 +39,7 @@ A complete **end-to-end Kimball Data Warehouse** built on **Microsoft SQL Server
          │
          ▼
 ┌─────────────────────────────────────────┐
-│              Data Marts (Views)          │
+│              Data Marts (Views)         │
 │  Marketing | Finance | Product          │
 │  Regional  | Device  | Executive        │
 └─────────────────────────────────────────┘
@@ -330,8 +330,8 @@ CREATE INDEX IX_fact_event_type ON DW.fact_app_events(event_type);
 
 ## 👤 Author
 
-**Kanishka** — Data Engineering Project | 2026
+**Poojitha** — Data Engineering Project | 2026
 
 ---
 
-*Built with ❤️ using SQL Server and Kimball dimensional modelling*
+*Built using SQL Server and Kimball dimensional modelling*
