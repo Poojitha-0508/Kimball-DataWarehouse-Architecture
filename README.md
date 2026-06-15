@@ -163,7 +163,7 @@ App-Store-Analytics-DWH/
 
 ### Step 1 — Create Database & Schemas
 ```sql
--- Run: 1_Database_Schema_Creation/create_database_schemas.sql
+-- Run: 01_Database_Schema_Creation/DB and Schema creation.sql
 -- Creates: AppAnalytics database, Stg schema, DW schema
 ```
 
@@ -171,7 +171,7 @@ App-Store-Analytics-DWH/
 
 ### Step 2 — Create Staging Tables
 ```sql
--- Run: 2_Staging/create_staging_tables.sql
+-- Run: 02_Staging/01_ddl_staging.sql
 -- Creates: 6 staging tables with NVARCHAR types for safe CSV loading
 ```
 
@@ -179,12 +179,12 @@ App-Store-Analytics-DWH/
 
 ### Step 3 — Create & Execute SP1 (Raw Data Load)
 ```sql
--- Run: 2_Staging/SP1_load_staging.sql
--- Creates stored procedure Stg.load_data
+-- Run: 02_Staging/02_procLoad_Staging.sql
+-- Creates stored procedure Stg.Load_Stg
 
 -- ⚠️ Before executing: Update CSV file paths inside SP to your local folder
 -- Then execute:
-EXEC Stg.load_data;
+EXEC Stg.Load_Stg;
 -- Loads all 6 CSV files into staging via BULK INSERT
 -- Prints row counts and timing for each table
 ```
@@ -193,29 +193,29 @@ EXEC Stg.load_data;
 
 ### Step 4 — Data Profiling (Optional — Reference Only)
 ```sql
--- Run: 3_Data_Profiling/data_profiling.sql
+-- Run: 03_Data_Profiling/Data Profiling.sql
 -- Explores every column: NULLs, casing issues, value distributions
 -- No data is modified here — read only analysis
 ```
 
 ---
 
-### Step 6 — Create DW Tables (Star Schema)
+### Step 5 — Create DW Tables (Star Schema)
 ```sql
--- Run: 5_DW_Layer/create_dw_tables.sql
+-- Run: 04_DW_Layer/01_ddl_dw.sql
 -- Creates: 5 dimension tables + 1 fact table
 -- Applies: PRIMARY KEY on dims, FOREIGN KEY on fact
 ```
 
 ---
 
-### Step 7 — Create & Execute SP2 (Cleaned Data Load)
+### Step 6 — Create & Execute SP2 (Cleaned Data Load)
 ```sql
--- Run: 5_DW_Layer/SP2_load_dw.sql
--- Creates stored procedure DW.load_data
+-- Run: 04_DW_Layer/02_procLoad_dw.sql
+-- Creates stored procedure dw.Load_DW
 
 -- Then execute:
-EXEC DW.load_data;
+EXEC dw.Load_DW;
 -- Cleans and loads all staging data into DW star schema
 -- Applies: gender standardization, NULL handling,
 --          discount fixes, date conversions, casing fixes
@@ -224,36 +224,36 @@ EXEC DW.load_data;
 
 ---
 
-### Step 8 — Validate Data Quality
+### Step 7 — Validate Data Quality
 ```sql
--- Run: 6_Data_Validation/data_validation.sql
+-- Run: 05_Data_Validation/Data Validation.sql
 -- Compares Staging vs DW side by side using UNION ALL
 -- Verifies: row counts match, cleaning applied correctly
 ```
 
 ---
 
-### Step 9 — Create Indexes
+### Step 8 — Create Indexes
 ```sql
--- Run: 7_Indexes/indexes.sql
+-- Run: 06_Indexes/Indexes.sql
 -- Creates 6 non-clustered indexes on fact table FK columns
 -- Improves JOIN performance on all mart queries
 ```
 
 ---
 
-### Step 10 — Create Data Marts
+### Step 9 — Create Data Marts
 ```sql
--- Run: 8_Data_Marts/data_marts.sql
+-- Run: 07_Data_Marts/DataMarts.sql
 -- Creates 6 views: Marketing, Finance, Product,
 --                  Regional, Device, Executive
 ```
 
 ---
 
-### Step 11 — Run Analytical Queries
+### Step 10 — Run Analytical Queries
 ```sql
--- Run: 9_Analytical_Queries/analytical_queries.sql
+-- Run: 08_Analytical_Queries/Analytical Queries.sql
 -- 25 business queries across 6 marts
 -- Uses: LAG, CTE, RANK, DENSE_RANK, ROW_NUMBER,
 --       Window SUM, NULLIF, PARTITION BY
@@ -263,23 +263,25 @@ EXEC DW.load_data;
 
 ### ⚡ Quick Run Order Summary:
 ```
-create_database_schemas.sql
+DB and Schema creation.sql
         ↓
-create_staging_tables.sql
+01_ddl_staging.sql
         ↓
-SP1_load_staging.sql → EXEC Stg.load_data
+02_procLoad_Staging.sql → EXEC Stg.Load_Stg
         ↓
-create_dw_tables.sql
+Data Profiling.sql
         ↓
-SP2_load_dw.sql → EXEC DW.load_data
+01_ddl_dw.sql
         ↓
-data_validation.sql
+02_procLoad_dw.sql → EXEC dw.Load_DW
         ↓
-indexes.sql
+Data Validation.sql
         ↓
-data_marts.sql
+Indexes.sql
         ↓
-analytical_queries.sql
+DataMarts.sql
+        ↓
+Analytical Queries.sql
 ```
 
 ## 🧹 Data Cleaning Summary
