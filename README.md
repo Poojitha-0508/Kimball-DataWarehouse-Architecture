@@ -89,44 +89,40 @@ App-Store-Analytics-DWH/
 │
 ├── 📄 README.md
 │
-├── 📂 1_Database_Schema_Creation/
-│     └── create_database_schemas.sql
+├── 📂 01_Database_Schema_Creation/
+│     └── DB and Schema creation.sql
 │         └── Creates: AppAnalytics DB, Stg schema, DW schema
 │
-├── 📂 2_Staging/
-│     ├── create_staging_tables.sql
+├── 📂 02_Staging/
+│     ├── 01_ddl_staging.sql
 │     │   └── 6 staging tables with NVARCHAR types for safe loading
-│     └── SP1_load_staging.sql
+│     └── 02_procLoad_Staging.sql
 │         └── Stored Procedure: TRUNCATE → BULK INSERT with timing + TRY-CATCH
 │
-├── 📂 3_Data_Profiling/
-│     └── data_profiling.sql
+├── 📂 03_Data_Profiling/
+│     └── Data Profiling.sql
 │         └── DISTINCT, COUNT, NULL checks, MAX/MIN/AVG for all columns
 │
-├── 📂 4_Data_Cleaning/
-│     └── cleaning_queries.sql
-│         └── SELECT statements tested before INSERT into DW
-│
-├── 📂 5_DW_Layer/
-│     ├── create_dw_tables.sql
+├── 📂 04_DW_Layer/
+│     ├── 01_ddl_dw.sql
 │     │   └── Star schema with PRIMARY KEY + FOREIGN KEY constraints
-│     └── SP2_load_dw.sql
+│     └── 02_procLoad_dw.sql
 │         └── Stored Procedure: NOCHECK FK → DELETE fact → TRUNCATE dims → INSERT
 │
-├── 📂 6_Data_Validation/
-│     └── data_validation.sql
+├── 📂 05_Data_Validation/
+│     └── Data Validation.sql
 │         └── Staging vs DW comparison using UNION ALL
 │
-├── 📂 7_Indexes/
-│     └── indexes.sql
+├── 📂 06_Indexes/
+│     └── Indexes.sql
 │         └── Non-clustered indexes on all FK columns + event_type
 │
-├── 📂 8_Data_Marts/
-│     └── data_marts.sql
+├── 📂 07_Data_Marts/
+│     └── DataMarts.sql
 │         └── 6 Views: Marketing, Finance, Product, Regional, Device, Executive
 │
-└── 📂 9_Analytical_Queries/
-      └── analytical_queries.sql
+└── 📂 08_Analytical_Queries/
+      └── Analytical Queries.sql
           └── 60 business queries across 6 data marts
 ```
 
@@ -158,65 +154,133 @@ App-Store-Analytics-DWH/
 
 ## 🚀 How to Run This Project
 
+### Prerequisites
+- Microsoft SQL Server installed
+- SSMS (SQL Server Management Studio)
+- CSV files placed in a local folder (e.g. C:\AppAnalytics\data\)
+
+---
+
 ### Step 1 — Create Database & Schemas
 ```sql
 -- Run: 1_Database_Schema_Creation/create_database_schemas.sql
+-- Creates: AppAnalytics database, Stg schema, DW schema
 ```
+
+---
 
 ### Step 2 — Create Staging Tables
 ```sql
 -- Run: 2_Staging/create_staging_tables.sql
+-- Creates: 6 staging tables with NVARCHAR types for safe CSV loading
 ```
 
-### Step 3 — Load Raw Data into Staging
+---
+
+### Step 3 — Create & Execute SP1 (Raw Data Load)
 ```sql
--- Update CSV file paths in SP, then run:
+-- Run: 2_Staging/SP1_load_staging.sql
+-- Creates stored procedure Stg.load_data
+
+-- ⚠️ Before executing: Update CSV file paths inside SP to your local folder
+-- Then execute:
 EXEC Stg.load_data;
+-- Loads all 6 CSV files into staging via BULK INSERT
+-- Prints row counts and timing for each table
 ```
 
-### Step 4 — Data Profiling
+---
+
+### Step 4 — Data Profiling (Optional — Reference Only)
 ```sql
 -- Run: 3_Data_Profiling/data_profiling.sql
--- Understand every column before cleaning
+-- Explores every column: NULLs, casing issues, value distributions
+-- No data is modified here — read only analysis
 ```
 
-### Step 5 — Data Cleaning
-```sql
--- Run: 4_Data_Cleaning/cleaning_queries.sql
--- Review SELECT results before loading to DW
-```
+---
 
-### Step 6 — Create DW Tables
+### Step 6 — Create DW Tables (Star Schema)
 ```sql
 -- Run: 5_DW_Layer/create_dw_tables.sql
+-- Creates: 5 dimension tables + 1 fact table
+-- Applies: PRIMARY KEY on dims, FOREIGN KEY on fact
 ```
 
-### Step 7 — Load Cleaned Data into DW
+---
+
+### Step 7 — Create & Execute SP2 (Cleaned Data Load)
 ```sql
+-- Run: 5_DW_Layer/SP2_load_dw.sql
+-- Creates stored procedure DW.load_data
+
+-- Then execute:
 EXEC DW.load_data;
+-- Cleans and loads all staging data into DW star schema
+-- Applies: gender standardization, NULL handling,
+--          discount fixes, date conversions, casing fixes
+-- Prints row counts and timing for each table
 ```
+
+---
 
 ### Step 8 — Validate Data Quality
 ```sql
 -- Run: 6_Data_Validation/data_validation.sql
+-- Compares Staging vs DW side by side using UNION ALL
+-- Verifies: row counts match, cleaning applied correctly
 ```
+
+---
 
 ### Step 9 — Create Indexes
 ```sql
 -- Run: 7_Indexes/indexes.sql
+-- Creates 6 non-clustered indexes on fact table FK columns
+-- Improves JOIN performance on all mart queries
 ```
+
+---
 
 ### Step 10 — Create Data Marts
 ```sql
 -- Run: 8_Data_Marts/data_marts.sql
+-- Creates 6 views: Marketing, Finance, Product,
+--                  Regional, Device, Executive
 ```
+
+---
 
 ### Step 11 — Run Analytical Queries
 ```sql
 -- Run: 9_Analytical_Queries/analytical_queries.sql
+-- 25 business queries across 6 marts
+-- Uses: LAG, CTE, RANK, DENSE_RANK, ROW_NUMBER,
+--       Window SUM, NULLIF, PARTITION BY
 ```
 
 ---
+
+### ⚡ Quick Run Order Summary:
+```
+create_database_schemas.sql
+        ↓
+create_staging_tables.sql
+        ↓
+SP1_load_staging.sql → EXEC Stg.load_data
+        ↓
+create_dw_tables.sql
+        ↓
+SP2_load_dw.sql → EXEC DW.load_data
+        ↓
+data_validation.sql
+        ↓
+indexes.sql
+        ↓
+data_marts.sql
+        ↓
+analytical_queries.sql
+```
 
 ## 🧹 Data Cleaning Summary
 
