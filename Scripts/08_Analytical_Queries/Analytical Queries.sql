@@ -23,8 +23,7 @@ SELECT	age_group,
 		AVG(session_minutes) session_mins
 FROM dw.vw_Marketing_mart
 GROUP BY age_group
-ORDER BY session_mins DESC;
-select distinct event_type from dw.vw_Marketing_mart 
+ORDER BY session_mins DESC; 
 
 -- 4. Which country has most active users?
 SELECT	country,
@@ -53,7 +52,7 @@ WHERE gender='Female'
 GROUP BY category
 ORDER BY COUNT(user_key) DESC
 
--- 7. Weekend vs Weekday — when do users spend more money?
+-- 7. Weekend vs Weekday â€” when do users spend more money?
 SELECT 
 	CASE
 		WHEN is_weekend=0 THEN 'WeekDay'
@@ -74,7 +73,7 @@ FROM dw.vw_Marketing_mart
 GROUP BY city
 ORDER BY revenue_per_user DESC;
 
--- 9. Monthly trend — which month has most downloads?
+-- 9. Monthly trend â€” which month has most downloads?
 SELECT 
 		month_name,
 		month,
@@ -513,7 +512,7 @@ FROM (
 		GROUP BY YEAR
 )T
 
--- 2. Premium vs free users — who drives more revenue?
+-- 2. Premium vs free users â€” who drives more revenue?
 SELECT 
 		CASE
 			WHEN is_premium=1 THEN 'Premium'
